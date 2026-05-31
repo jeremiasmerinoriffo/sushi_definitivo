@@ -729,6 +729,24 @@
       margin-top: 6px;
     }
 
+
+    .nombre-final-card {
+      display: none;
+      background: #fffafa;
+      border: 1px solid #ffd0d0;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .nombre-final-card.active {
+      display: block;
+    }
+
+    .nombre-final-card label {
+      margin-top: 0;
+    }
+
     .option-group {
       background: #fffafa;
       border: 1px solid #ffd0d0;
@@ -924,6 +942,12 @@
         </div>
 
         <div id="horarioNota" class="horario-note"></div>
+      </div>
+
+      <div id="nombreFinalCard" class="nombre-final-card">
+        <label>Nombre</label>
+        <input id="clienteFinal" placeholder="Ej: Pedro" />
+        <p class="small">Necesitamos tu nombre para identificar el pedido.</p>
       </div>
 
       <div class="final-grid">
@@ -1573,6 +1597,28 @@
     }
 
 
+
+function obtenerNombreCliente() {
+  const nombreInicial = document.getElementById("cliente")?.value.trim() || "";
+  const nombreFinal = document.getElementById("clienteFinal")?.value.trim() || "";
+  return nombreInicial || nombreFinal;
+}
+
+function actualizarCampoNombreFinal() {
+  const nombreInicial = document.getElementById("cliente")?.value.trim() || "";
+  const card = document.getElementById("nombreFinalCard");
+
+  if (!card) return;
+
+  if (!nombreInicial) {
+    card.classList.add("active");
+  } else {
+    card.classList.remove("active");
+    const inputFinal = document.getElementById("clienteFinal");
+    if (inputFinal) inputFinal.value = "";
+  }
+}
+
 async function abrirConfirmacion() {
   if (carrito.length === 0) {
     alert("Agrega al menos un producto al pedido.");
@@ -1581,6 +1627,7 @@ async function abrirConfirmacion() {
 
   document.getElementById("finalPanel").classList.add("active");
   await generarOpcionesHorario();
+  actualizarCampoNombreFinal();
 
   // Oculta solo el botón de continuar, pero mantiene el total visible
   document.querySelector(".send-btn").style.display = "none";
@@ -2009,12 +2056,27 @@ botonConfirmar.style.cursor = "not-allowed";
         return;
       }
 
-      const cliente = document.getElementById("cliente").value || "No indicado";
+      const cliente = obtenerNombreCliente();
       const total = carrito.reduce((acc, item) => acc + item.precioFinal, 0);
       const datosFinales = getDatosFinales();
 
       if (datosFinales.horarioRetiro?.tipo === "manual" && !datosFinales.horarioRetiro.hora) {
         alert("Debes elegir la hora y los minutos de retiro.");
+        if (botonConfirmar) {
+          botonConfirmar.disabled = false;
+          botonConfirmar.textContent = "Confirmar y enviar por WhatsApp";
+          botonConfirmar.style.opacity = "1";
+          botonConfirmar.style.cursor = "pointer";
+        }
+        return;
+      }
+
+      if (!cliente) {
+        alert("Debes escribir tu nombre para identificar el pedido.");
+        actualizarCampoNombreFinal();
+        const inputFinal = document.getElementById("clienteFinal");
+        if (inputFinal) inputFinal.focus();
+
         if (botonConfirmar) {
           botonConfirmar.disabled = false;
           botonConfirmar.textContent = "Confirmar y enviar por WhatsApp";
@@ -2066,6 +2128,13 @@ if (datosFinales.observacionesFinales) {
 window.location.href =
   `https://wa.me/${WHATSAPP}?text=${mensaje}`;
 }
+
+    document.addEventListener("input", function(e) {
+      if (e.target && e.target.id === "cliente") {
+        actualizarCampoNombreFinal();
+      }
+    });
+
     renderMenu();
     mostrarSugerenciaUltimoPedido();
   </script>
