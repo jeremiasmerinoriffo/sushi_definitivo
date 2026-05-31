@@ -121,6 +121,10 @@
       margin-top: 12px;
     }
 
+    .bulk-actions button {
+      flex: 1 1 150px;
+    }
+
     .btn-soft {
       background: #eee;
       color: #111;
@@ -394,8 +398,9 @@
 
         <div class="bulk-actions">
           <button id="btnModoSeleccion" class="btn-select" onclick="activarSeleccionPedidos()">Seleccionar pedidos</button>
-          <button id="btnSeleccionarTodos" class="btn-soft hidden" onclick="seleccionarTodosPedidos()">Seleccionar todos</button>
-          <button id="btnTerminarSeleccionados" class="btn-danger hidden" onclick="terminarPedidosSeleccionados()">Marcar seleccionados como terminados</button>
+          <button id="btnSeleccionarTodos" class="btn-soft hidden" onclick="seleccionarTodosPedidos()">Seleccionar todo</button>
+          <button id="btnMarcarTerminados" class="btn-danger hidden" onclick="marcarSeleccionados('terminado')">Marcar como terminado</button>
+          <button id="btnMarcarPendientes" class="btn-soft hidden" onclick="marcarSeleccionados('nuevo')">Marcar como pendiente</button>
           <button id="btnCancelarSeleccion" class="btn-soft hidden" onclick="cancelarSeleccionPedidos()">Cancelar selección</button>
         </div>
       </div>
@@ -555,7 +560,8 @@
     function actualizarBotonesSeleccion() {
       const ids = [
         "btnSeleccionarTodos",
-        "btnTerminarSeleccionados",
+        "btnMarcarTerminados",
+        "btnMarcarPendientes",
         "btnCancelarSeleccion"
       ];
 
@@ -568,10 +574,16 @@
       const btnModo = document.getElementById("btnModoSeleccion");
       if (btnModo) btnModo.classList.toggle("hidden", modoSeleccion);
 
-      const btnTerminar = document.getElementById("btnTerminarSeleccionados");
-      if (btnTerminar) {
-        const n = pedidosSeleccionados.size;
-        btnTerminar.textContent = n ? `Marcar terminados (${n})` : "Marcar seleccionados como terminados";
+      const n = pedidosSeleccionados.size;
+
+      const btnTerminados = document.getElementById("btnMarcarTerminados");
+      if (btnTerminados) {
+        btnTerminados.textContent = n ? `Marcar como terminado (${n})` : "Marcar como terminado";
+      }
+
+      const btnPendientes = document.getElementById("btnMarcarPendientes");
+      if (btnPendientes) {
+        btnPendientes.textContent = n ? `Marcar como pendiente (${n})` : "Marcar como pendiente";
       }
     }
 
@@ -619,9 +631,12 @@
     };
 
     window.seleccionarTodosPedidos = function seleccionarTodosPedidos() {
+      pedidosSeleccionados.clear();
+
       pedidosDiaActual
         .filter(p => vistaActiva === "pendientes" ? p.estado !== "terminado" : p.estado === "terminado")
         .forEach(p => pedidosSeleccionados.add(p.id));
+
       actualizarBotonesSeleccion();
       renderPedidosDia();
     };
@@ -652,7 +667,9 @@
       }
     };
 
-    window.eliminarPedidosSeleccionados = async function terminarPedidosSeleccionados() {
+
+
+    window.marcarSeleccionados = async function marcarSeleccionados(estadoDestino) {
       const cantidad = pedidosSeleccionados.size;
 
       if (!cantidad) {
@@ -660,12 +677,15 @@
         return;
       }
 
-      const ok = confirm(`¿Seguro que quieres eliminar ${cantidad} pedido(s)? Esta acción no se puede deshacer.`);
+      const texto = estadoDestino === "terminado" ? "terminados" : "pendientes";
+      const ok = confirm(`¿Marcar ${cantidad} pedido(s) como ${texto}?`);
       if (!ok) return;
 
       try {
         await Promise.all(
-          Array.from(pedidosSeleccionados).map(id => deleteDoc(doc(db, "pedidos", id)))
+          Array.from(pedidosSeleccionados).map(id =>
+            updateDoc(doc(db, "pedidos", id), { estado: estadoDestino })
+          )
         );
 
         pedidosSeleccionados.clear();
@@ -675,12 +695,15 @@
 
       } catch (error) {
         console.error(error);
-        alert("No se pudieron eliminar los pedidos seleccionados. Revisa las reglas de Firestore.");
+        alert("No se pudieron actualizar los pedidos seleccionados. Revisa las reglas de Firestore.");
       }
     };
 
     window.cambiarVistaPedidos = function cambiarVistaPedidos(vista) {
       vistaActiva = vista;
+      pedidosSeleccionados.clear();
+      modoSeleccion = false;
+      actualizarBotonesSeleccion();
       renderPedidosDia();
     };
 
