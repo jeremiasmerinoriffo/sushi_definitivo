@@ -583,44 +583,98 @@
       background: #fff8e8;
       border: 1px solid #ffd98a;
       border-radius: 16px;
-      padding: 12px;
+      padding: 10px;
       margin-top: 10px;
+    }
+
+    .horario-card label {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
     .horario-options {
       display: grid;
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 7px;
+      margin-top: 8px;
     }
 
     .horario-option {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: white;
       border: 1px solid #f0d28a;
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: 12px;
+      padding: 8px;
       font-weight: 800;
       cursor: pointer;
+      font-size: 13px;
+      line-height: 1.2;
     }
 
     .horario-option input {
       width: auto;
-      transform: scale(1.15);
+      transform: scale(1.05);
+      margin: 0;
     }
 
     .horario-note {
       color: #7a5300;
-      font-size: 13px;
-      line-height: 1.35;
+      font-size: 12px;
+      line-height: 1.25;
+      margin-top: 7px;
+    }
+
+
+    .hora-manual-box {
+      display: none;
       margin-top: 8px;
+      background: white;
+      border: 1px solid #f0d28a;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .hora-manual-box.active {
+      display: block;
+    }
+
+    .hora-selector-title {
+      font-weight: 900;
+      color: #7a5300;
+      font-size: 13px;
+      margin: 8px 0 6px;
+    }
+
+    .hora-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .hora-btn {
+      background: #fff8e8;
+      color: #7a5300;
+      border: 1px solid #f0d28a;
+      padding: 9px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .hora-btn.active {
+      background: var(--rojo);
+      color: white;
+      border-color: var(--rojo);
     }
 
     .horario-loading {
       color: #777;
-      font-size: 14px;
-      margin-top: 8px;
+      font-size: 13px;
+      margin-top: 6px;
     }
 
     .option-group {
@@ -709,7 +763,7 @@
     }
 
     @media (max-width: 760px) {
-      .promo-grid, .builder-options, .envoltura-grid, .final-grid, .repeat-actions { grid-template-columns: 1fr; }
+      .promo-grid, .builder-options, .envoltura-grid, .final-grid, .repeat-actions, .horario-options { grid-template-columns: 1fr; }
       .ingredient-grid { grid-template-columns: 1fr; }
       .hero h1 { font-size: 29px; }
       .offer-head h2, .builder-head h2, .config-head h2 { font-size: 22px; }
@@ -792,12 +846,21 @@
 
     <section id="finalPanel" class="final-panel">
       <h2>✅ Último paso</h2>
-      <p class="small">Antes de enviar tu pedido, elige horario de retiro, salsas, palillos y observaciones finales.</p>
+      <p class="small">Elige horario, salsas, palillos y observaciones finales.</p>
 
       <div class="horario-card">
         <label>⏰ Horario de retiro</label>
         <div id="horarioLoading" class="horario-loading">Calculando horarios disponibles...</div>
         <div id="horarioOptions" class="horario-options"></div>
+
+        <div id="horaManualBox" class="hora-manual-box">
+          <div class="hora-selector-title">Hora</div>
+          <div id="horaManualHoras" class="hora-btn-grid"></div>
+
+          <div class="hora-selector-title">Minutos</div>
+          <div id="horaManualMinutos" class="hora-btn-grid"></div>
+        </div>
+
         <div id="horarioNota" class="horario-note"></div>
       </div>
 
@@ -888,6 +951,8 @@
     const MIN_SUSHI_10 = 4;
     const MIN_SUSHIBURGER = 4;
     let opcionesHorarioActuales = [];
+    let horaManualSeleccionada = "";
+    let minutoManualSeleccionado = "";
 
     const ingredientes = [
       "Queso Philadelphia",
@@ -1603,17 +1668,19 @@ function cerrarConfirmacion() {
       const primeraHora = redondearArriba5Min(sumarMinutos(ahora, cola + tiempoPedido));
 
       opcionesHorarioActuales = [];
+      horaManualSeleccionada = "";
+      minutoManualSeleccionado = "";
 
       opcionesHorarioActuales.push({
         tipo: "asap",
-        label: `Lo antes posible — aprox. ${formatoHora(primeraHora)}`,
+        label: `Lo antes posible (${formatoHora(primeraHora)})`,
         hora: formatoHora(primeraHora),
         fechaHoraISO: primeraHora.toISOString(),
         tiempoPreparacion: tiempoPedido,
         tiempoCola: cola
       });
 
-      for (let i = 0; i < 6; i++) {
+      for (let i = 1; i <= 4; i++) {
         const fecha = sumarMinutos(primeraHora, i * 5);
         opcionesHorarioActuales.push({
           tipo: "agendado",
@@ -1625,22 +1692,122 @@ function cerrarConfirmacion() {
         });
       }
 
+      opcionesHorarioActuales.push({
+        tipo: "manual",
+        label: "Elegir otra hora",
+        hora: "",
+        fechaHoraISO: null,
+        tiempoPreparacion: tiempoPedido,
+        tiempoCola: cola
+      });
+
       cont.innerHTML = opcionesHorarioActuales.map((op, i) => `
         <label class="horario-option">
-          <input type="radio" name="horarioRetiro" value="${i}" ${i === 0 ? "checked" : ""}>
+          <input type="radio" name="horarioRetiro" value="${i}" ${i === 0 ? "checked" : ""} onchange="toggleHoraManual()">
           ${op.label}
         </label>
       `).join("");
 
+      toggleHoraManual();
+
       loading.style.display = "none";
-      nota.textContent = `Tiempo de preparación de este pedido: ${tiempoPedido} min. Cola estimada actual: ${cola} min.`;
+      nota.textContent = `Preparación: ${tiempoPedido} min · Cola: ${cola} min`;
+    }
+
+
+
+    function generarSelectorHoraManual() {
+      const contHoras = document.getElementById("horaManualHoras");
+      const contMinutos = document.getElementById("horaManualMinutos");
+
+      if (!contHoras || !contMinutos) return;
+
+      const ahora = new Date();
+      const horaActual = Number(
+        ahora.toLocaleTimeString("es-CL", {
+          timeZone: "America/Santiago",
+          hour: "2-digit",
+          hour12: false
+        })
+      );
+
+      const horas = [];
+      for (let i = 0; i < 6; i++) {
+        horas.push(String((horaActual + i) % 24).padStart(2, "0"));
+      }
+
+      const minutos = ["10", "20", "30", "40", "50"];
+
+      contHoras.innerHTML = horas.map(h => `
+        <button type="button" class="hora-btn ${horaManualSeleccionada === h ? "active" : ""}" onclick="seleccionarHoraManual('${h}')">
+          ${h}
+        </button>
+      `).join("");
+
+      contMinutos.innerHTML = minutos.map(m => `
+        <button type="button" class="hora-btn ${minutoManualSeleccionado === m ? "active" : ""}" onclick="seleccionarMinutoManual('${m}')">
+          ${m}
+        </button>
+      `).join("");
+    }
+
+    function seleccionarHoraManual(hora) {
+      horaManualSeleccionada = hora;
+      generarSelectorHoraManual();
+      actualizarHoraManual();
+    }
+
+    function seleccionarMinutoManual(minuto) {
+      minutoManualSeleccionado = minuto;
+      generarSelectorHoraManual();
+      actualizarHoraManual();
+    }
+
+    function toggleHoraManual() {
+      const seleccionado = document.querySelector('input[name="horarioRetiro"]:checked');
+      const index = seleccionado ? Number(seleccionado.value) : 0;
+      const opcion = opcionesHorarioActuales[index];
+      const box = document.getElementById("horaManualBox");
+
+      if (!box || !opcion) return;
+
+      if (opcion.tipo === "manual") {
+        box.classList.add("active");
+        generarSelectorHoraManual();
+      } else {
+        box.classList.remove("active");
+      }
+    }
+
+    function actualizarHoraManual() {
+      const seleccionado = document.querySelector('input[name="horarioRetiro"]:checked');
+      const index = seleccionado ? Number(seleccionado.value) : -1;
+
+      if (index < 0 || !opcionesHorarioActuales[index]) return;
+      if (opcionesHorarioActuales[index].tipo !== "manual") return;
+
+      const hora = horaManualSeleccionada;
+      const minuto = minutoManualSeleccionado;
+
+      if (hora && minuto) {
+        const horaCompleta = `${hora}:${minuto}`;
+        opcionesHorarioActuales[index].hora = horaCompleta;
+        opcionesHorarioActuales[index].label = `Hora elegida: ${horaCompleta}`;
+
+        const hoy = fechaLocalChileYYYYMMDD();
+        opcionesHorarioActuales[index].fechaHoraISO = new Date(`${hoy}T${horaCompleta}:00`).toISOString();
+      } else {
+        opcionesHorarioActuales[index].hora = "";
+        opcionesHorarioActuales[index].label = "Elegir otra hora";
+        opcionesHorarioActuales[index].fechaHoraISO = null;
+      }
     }
 
     function getHorarioSeleccionado() {
       const seleccionado = document.querySelector('input[name="horarioRetiro"]:checked');
       const index = seleccionado ? Number(seleccionado.value) : 0;
 
-      return opcionesHorarioActuales[index] || {
+      const opcion = opcionesHorarioActuales[index] || {
         tipo: "asap",
         label: "Lo antes posible",
         hora: null,
@@ -1648,6 +1815,21 @@ function cerrarConfirmacion() {
         tiempoPreparacion: calcularTiempoPreparacion(carrito),
         tiempoCola: 0
       };
+
+      if (opcion.tipo === "manual") {
+        actualizarHoraManual();
+
+        if (horaManualSeleccionada && minutoManualSeleccionado) {
+          const horaCompleta = `${horaManualSeleccionada}:${minutoManualSeleccionado}`;
+          opcion.hora = horaCompleta;
+          opcion.label = `Hora elegida: ${horaCompleta}`;
+        } else {
+          opcion.hora = "";
+          opcion.label = "Hora no indicada";
+        }
+      }
+
+      return opcion;
     }
 
     function getDatosFinales() {
@@ -1749,6 +1931,17 @@ botonConfirmar.style.cursor = "not-allowed";
       const cliente = document.getElementById("cliente").value || "No indicado";
       const total = carrito.reduce((acc, item) => acc + item.precioFinal, 0);
       const datosFinales = getDatosFinales();
+
+      if (datosFinales.horarioRetiro?.tipo === "manual" && !datosFinales.horarioRetiro.hora) {
+        alert("Debes elegir la hora y los minutos de retiro.");
+        if (botonConfirmar) {
+          botonConfirmar.disabled = false;
+          botonConfirmar.textContent = "Confirmar y enviar por WhatsApp";
+          botonConfirmar.style.opacity = "1";
+          botonConfirmar.style.cursor = "pointer";
+        }
+        return;
+      }
 
       guardarUltimoPedidoLocal(cliente, total);
 
