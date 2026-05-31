@@ -125,21 +125,27 @@
       flex: 1 1 150px;
     }
 
-    .btn-soft {
-      background: #eee;
-      color: #111;
-    }
+   .btn-soft {
+  background: #eee;
+  color: #111;
+}
 
-    .btn-select {
-      background: #111;
-      color: white;
-    }
+.btn-warning {
+  background: linear-gradient(135deg, #FFD54F, #F9A825);
+  color: #333;
+  font-weight: 900;
+}
 
-    .btn-danger {
-      background: var(--rojo);
-      color: white;
-    }
+.btn-select {
+  background: #111;
+  color: white;
+}
 
+.btn-danger {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  font-weight: 900;
+}
 
     .pedido-terminado {
       background: #e8f8ea;
@@ -400,7 +406,11 @@
           <button id="btnModoSeleccion" class="btn-select" onclick="activarSeleccionPedidos()">Seleccionar pedidos</button>
           <button id="btnSeleccionarTodos" class="btn-soft hidden" onclick="seleccionarTodosPedidos()">Seleccionar todo</button>
           <button id="btnMarcarTerminados" class="btn-danger hidden" onclick="marcarSeleccionados('terminado')">Marcar como terminado</button>
-          <button id="btnMarcarPendientes" class="btn-soft hidden" onclick="marcarSeleccionados('nuevo')">Marcar como pendiente</button>
+          <button id="btnMarcarPendientes"
+        class="btn-warning hidden"
+        onclick="marcarSeleccionados('nuevo')">
+  Marcar como pendiente
+</button>
           <button id="btnCancelarSeleccion" class="btn-soft hidden" onclick="cancelarSeleccionPedidos()">Cancelar selección</button>
         </div>
       </div>
