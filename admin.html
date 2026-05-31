@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel privado - Sushi Ange</title>
+  <style>
+    :root {
+      --rojo: #d62828;
+      --rojo-oscuro: #9d0208;
+      --negro: #111111;
+      --gris: #f4f4f4;
+      --gris-2: #e9e9e9;
+      --texto: #1f1f1f;
+      --verde: #25D366;
+      --sombra: 0 10px 28px rgba(0,0,0,.12);
+      --radio: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(214,40,40,.14), transparent 32%),
+        linear-gradient(180deg, #fff 0%, #f6f6f6 45%, #eeeeee 100%);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #111, #2a2a2a);
+      color: white;
+      text-align: center;
+      padding: 28px 16px;
+      border-bottom-left-radius: 34px;
+      border-bottom-right-radius: 34px;
+      box-shadow: var(--sombra);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: #eee;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 18px 14px 40px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.96);
+      border-radius: var(--radio);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--sombra);
+      border: 1px solid rgba(0,0,0,.05);
+    }
+
+    .login {
+      max-width: 420px;
+      margin: 40px auto;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d7d7d7;
+      border-radius: 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--rojo);
+      box-shadow: 0 0 0 4px rgba(214,40,40,.10);
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 15px;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    button:active { transform: scale(.98); }
+
+    .primary {
+      background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
+      color: white;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .btn-soft {
+      background: #eee;
+      color: #111;
+    }
+
+    .btn-delete {
+      background: #fff1f1;
+      color: var(--rojo);
+      border: 1px solid rgba(214,40,40,.18);
+      padding: 8px 10px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+
+    .bulk-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-select {
+      background: #111;
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--rojo);
+      color: white;
+    }
+
+    .select-box {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      background: #fff1f1;
+      border: 1px solid rgba(214,40,40,.18);
+      border-radius: 12px;
+      font-weight: 800;
+      color: var(--rojo);
+    }
+
+    .select-box.active {
+      display: flex;
+    }
+
+    .select-box input {
+      width: auto;
+      transform: scale(1.2);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--sombra);
+      border: 1px solid #eee;
+    }
+
+    .stat span {
+      display: block;
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat strong {
+      color: var(--rojo);
+      font-size: 26px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.8;
+    }
+
+    .mini-list strong {
+      color: var(--rojo);
+    }
+
+    .pedido {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--sombra);
+      border: 1px solid #eee;
+    }
+
+    .pedido-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pedido h3 {
+      margin: 0;
+      color: var(--rojo);
+      font-size: 19px;
+    }
+
+    .pedido-total {
+      font-weight: 900;
+      font-size: 20px;
+      color: var(--rojo);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .pedido-actions {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .producto {
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 14px;
+      margin-top: 8px;
+    }
+
+    .producto strong {
+      color: #111;
+    }
+
+    .detalle-roll {
+      margin: 5px 0;
+      line-height: 1.35;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .empty {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--sombra);
+    }
+
+    .error {
+      color: var(--rojo);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 860px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .analysis-grid { grid-template-columns: 1fr; }
+      .pedido-head { flex-direction: column; }
+      .pedido-actions { justify-items: start; }
+      header h1 { font-size: 25px; }
+    }
+
+    @media (max-width: 520px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel privado</h1>
+    <p>Ventas, pedidos y análisis de Sushi Ange</p>
+  </header>
+
+  <main>
+    <section id="loginBox" class="card login">
+      <h2>Ingresar</h2>
+      <label>Clave</label>
+      <input id="clave" type="password" placeholder="Ingresa tu clave" />
+      <button class="primary" onclick="entrar()">Entrar</button>
+      <div id="loginError" class="error"></div>
+    </section>
+
+    <section id="panel" class="hidden">
+      <div class="card">
+        <h2>Pedidos</h2>
+        <div class="toolbar">
+          <div>
+            <label>Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+          <button class="btn-soft" onclick="cargarPedidos()">Actualizar</button>
+          <button class="btn-soft" onclick="salir()">Salir</button>
+        </div>
+
+        <div class="bulk-actions">
+          <button id="btnModoSeleccion" class="btn-select" onclick="activarSeleccionPedidos()">Seleccionar pedidos</button>
+          <button id="btnSeleccionarTodos" class="btn-soft hidden" onclick="seleccionarTodosPedidos()">Seleccionar todos</button>
+          <button id="btnEliminarSeleccionados" class="btn-danger hidden" onclick="eliminarPedidosSeleccionados()">Eliminar seleccionados</button>
+          <button id="btnCancelarSeleccion" class="btn-soft hidden" onclick="cancelarSeleccionPedidos()">Cancelar selección</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span>Total del día</span>
+          <strong id="totalDia">$0</strong>
+        </div>
+        <div class="stat">
+          <span>Total semanal</span>
+          <strong id="totalSemana">$0</strong>
+        </div>
+        <div class="stat">
+          <span>Total mensual</span>
+          <strong id="totalMes">$0</strong>
+        </div>
+        <div class="stat">
+          <span>Acumulado total</span>
+          <strong id="totalAcumulado">$0</strong>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span>Pedidos del día</span>
+          <strong id="cantidadDia">0</strong>
+        </div>
+        <div class="stat">
+          <span>Ticket promedio</span>
+          <strong id="ticketPromedio">$0</strong>
+        </div>
+        <div class="stat">
+          <span>Promo más vendida</span>
+          <strong id="promoMasVendida">-</strong>
+        </div>
+        <div class="stat">
+          <span>Ingredientes extra</span>
+          <strong id="extrasTotal">$0</strong>
+        </div>
+      </div>
+
+      <div class="analysis-grid">
+        <div class="card">
+          <h2>Top promociones</h2>
+          <ol id="topPromos" class="mini-list"></ol>
+        </div>
+
+        <div class="card">
+          <h2>Ingredientes más pedidos</h2>
+          <ol id="topIngredientes" class="mini-list"></ol>
+        </div>
+      </div>
+
+      <div id="pedidosLista" style="margin-top:16px;"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy,
+      doc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUMySSnAS5mpEFtncooBFn-268Z8LuD5Y",
+      authDomain: "menu-sushi-ange.firebaseapp.com",
+      projectId: "menu-sushi-ange",
+      storageBucket: "menu-sushi-ange.firebasestorage.app",
+      messagingSenderId: "1073224165075",
+      appId: "1:1073224165075:web:913b3d109905faf6b61626"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const CLAVE_ADMIN = "090605";
+    let pedidosGlobales = [];
+    let pedidosDiaActual = [];
+    let modoSeleccion = false;
+    let pedidosSeleccionados = new Set();
+
+    function formatCLP(valor) {
+      return "$" + Number(valor || 0).toLocaleString("es-CL");
+    }
+
+    function limpiarIngrediente(nombre) {
+      return String(nombre || "")
+        .replace(/\s*\(\+\$?1\.?300\)\s*/g, "")
+        .replace(/\s*\(\+1300\)\s*/g, "")
+        .trim();
+    }
+
+    function getFechaObj(pedido) {
+      if (pedido.fechaISO) return new Date(pedido.fechaISO);
+      if (pedido.creadoEn && typeof pedido.creadoEn.toDate === "function") return pedido.creadoEn.toDate();
+      if (pedido.fecha) return new Date(pedido.fecha);
+      return null;
+    }
+
+    function fechaLocalYYYYMMDD(fecha) {
+      if (!fecha) return "";
+      return fecha.toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
+    }
+
+    function obtenerFechaLocalPedido(pedido) {
+      return fechaLocalYYYYMMDD(getFechaObj(pedido));
+    }
+
+    function obtenerHoraLocalPedido(pedido) {
+      const fecha = getFechaObj(pedido);
+      if (!fecha) return "";
+      return fecha.toLocaleTimeString("es-CL", {
+        timeZone: "America/Santiago",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function inicioSemanaLunes(fechaString) {
+      const [y, m, d] = fechaString.split("-").map(Number);
+      const fecha = new Date(Date.UTC(y, m - 1, d));
+      const dia = fecha.getUTCDay() || 7;
+      fecha.setUTCDate(fecha.getUTCDate() - dia + 1);
+      return fecha.toISOString().slice(0, 10);
+    }
+
+    function finSemanaDomingo(fechaString) {
+      const ini = inicioSemanaLunes(fechaString);
+      const [y, m, d] = ini.split("-").map(Number);
+      const fecha = new Date(Date.UTC(y, m - 1, d));
+      fecha.setUTCDate(fecha.getUTCDate() + 6);
+      return fecha.toISOString().slice(0, 10);
+    }
+
+    function mismoMes(fechaPedido, fechaBase) {
+      return fechaPedido.slice(0, 7) === fechaBase.slice(0, 7);
+    }
+
+    function entreFechas(fecha, desde, hasta) {
+      return fecha >= desde && fecha <= hasta;
+    }
+
+    function sumarPedidos(pedidos) {
+      return pedidos.reduce((acc, p) => acc + Number(p.total || 0), 0);
+    }
+
+    function contarPromos(pedidos) {
+      const conteo = {};
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          const nombre = prod.nombre || "Sin nombre";
+          conteo[nombre] = (conteo[nombre] || 0) + 1;
+        });
+      });
+      return Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+    }
+
+    function contarIngredientes(pedidos) {
+      const conteo = {};
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          (prod.detalleRolls || []).forEach(roll => {
+            (roll.ingredientes || []).forEach(ing => {
+              const limpio = limpiarIngrediente(ing);
+              conteo[limpio] = (conteo[limpio] || 0) + 1;
+            });
+          });
+        });
+      });
+      return Object.entries(conteo).sort((a, b) => b[1] - a[1]);
+    }
+
+    function calcularExtras(pedidos) {
+      let total = 0;
+      pedidos.forEach(pedido => {
+        (pedido.productos || []).forEach(prod => {
+          total += Number(prod.extraSalmon || 0);
+          total += Number(prod.extraCuarto || 0);
+        });
+      });
+      return total;
+    }
+
+    function renderTopLista(id, entradas) {
+      const el = document.getElementById(id);
+      if (!entradas.length) {
+        el.innerHTML = "<li>No hay datos.</li>";
+        return;
+      }
+      el.innerHTML = entradas.slice(0, 5).map(([nombre, cantidad]) => (
+        `<li><strong>${nombre}</strong>: ${cantidad}</li>`
+      )).join("");
+    }
+
+    function actualizarAnalisis(pedidosDia) {
+      const fechaSeleccionada = document.getElementById("fecha").value;
+      const semanaInicio = inicioSemanaLunes(fechaSeleccionada);
+      const semanaFin = finSemanaDomingo(fechaSeleccionada);
+
+      const pedidosSemana = pedidosGlobales.filter(p => {
+        const f = obtenerFechaLocalPedido(p);
+        return entreFechas(f, semanaInicio, semanaFin);
+      });
+
+      const pedidosMes = pedidosGlobales.filter(p => {
+        const f = obtenerFechaLocalPedido(p);
+        return mismoMes(f, fechaSeleccionada);
+      });
+
+      const totalDia = sumarPedidos(pedidosDia);
+      const totalSemana = sumarPedidos(pedidosSemana);
+      const totalMes = sumarPedidos(pedidosMes);
+      const totalAcumulado = sumarPedidos(pedidosGlobales);
+      const ticketPromedio = pedidosDia.length ? Math.round(totalDia / pedidosDia.length) : 0;
+      const promos = contarPromos(pedidosDia);
+      const promoMasVendida = promos.length ? `${promos[0][0]} (${promos[0][1]})` : "-";
+
+      document.getElementById("totalDia").textContent = formatCLP(totalDia);
+      document.getElementById("totalSemana").textContent = formatCLP(totalSemana);
+      document.getElementById("totalMes").textContent = formatCLP(totalMes);
+      document.getElementById("totalAcumulado").textContent = formatCLP(totalAcumulado);
+      document.getElementById("cantidadDia").textContent = pedidosDia.length;
+      document.getElementById("ticketPromedio").textContent = formatCLP(ticketPromedio);
+      document.getElementById("promoMasVendida").textContent = promoMasVendida;
+      document.getElementById("extrasTotal").textContent = formatCLP(calcularExtras(pedidosDia));
+
+      renderTopLista("topPromos", contarPromos(pedidosDia));
+      renderTopLista("topIngredientes", contarIngredientes(pedidosDia));
+    }
+
+    function renderPedido(pedido) {
+      const productos = pedido.productos || [];
+      const hora = obtenerHoraLocalPedido(pedido);
+      const checked = pedidosSeleccionados.has(pedido.id) ? "checked" : "";
+
+      return `
+        <div class="pedido">
+          <label class="select-box ${modoSeleccion ? "active" : ""}">
+            <input type="checkbox" ${checked} onchange="togglePedidoSeleccionado('${pedido.id}', this.checked)">
+            Seleccionar este pedido
+          </label>
+
+          <div class="pedido-head">
+            <div>
+              <h3>${pedido.cliente || "Cliente no indicado"}</h3>
+              <div class="muted">Hora: ${hora || "No registrada"} · Estado: ${pedido.estado || "nuevo"}</div>
+            </div>
+            <div class="pedido-actions">
+              <div class="pedido-total">${formatCLP(pedido.total)}</div>
+              <button class="btn-delete" onclick="eliminarPedido('${pedido.id}')">🗑️ Eliminar</button>
+            </div>
+          </div>
+
+          ${productos.map(prod => `
+            <div class="producto">
+              <strong>${prod.nombre || "Producto"}</strong>
+              <div class="muted">${prod.piezas || ""}</div>
+
+              ${(prod.detalleRolls || []).map(roll => `
+                <div class="detalle-roll">🍣 ${roll.nombre}: ${(roll.ingredientes || []).map(limpiarIngrediente).join(", ")}</div>
+              `).join("")}
+
+              ${prod.extraSalmon ? `<div class="muted">Adicional salmón: ${formatCLP(prod.extraSalmon)}</div>` : ""}
+              ${prod.extraCuarto ? `<div class="muted">Ingrediente 4 extra: ${formatCLP(prod.extraCuarto)}</div>` : ""}
+              ${prod.observaciones ? `<div class="muted">Obs: ${prod.observaciones}</div>` : ""}
+              ${prod.obs ? `<div class="muted">Obs: ${prod.obs}</div>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function actualizarBotonesSeleccion() {
+      const ids = [
+        "btnSeleccionarTodos",
+        "btnEliminarSeleccionados",
+        "btnCancelarSeleccion"
+      ];
+
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle("hidden", !modoSeleccion);
+      });
+
+      const btnModo = document.getElementById("btnModoSeleccion");
+      if (btnModo) btnModo.classList.toggle("hidden", modoSeleccion);
+
+      const btnEliminar = document.getElementById("btnEliminarSeleccionados");
+      if (btnEliminar) {
+        const n = pedidosSeleccionados.size;
+        btnEliminar.textContent = n ? `Eliminar seleccionados (${n})` : "Eliminar seleccionados";
+      }
+    }
+
+    window.activarSeleccionPedidos = function activarSeleccionPedidos() {
+      modoSeleccion = true;
+      pedidosSeleccionados.clear();
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.cancelarSeleccionPedidos = function cancelarSeleccionPedidos() {
+      modoSeleccion = false;
+      pedidosSeleccionados.clear();
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.togglePedidoSeleccionado = function togglePedidoSeleccionado(id, checked) {
+      if (checked) {
+        pedidosSeleccionados.add(id);
+      } else {
+        pedidosSeleccionados.delete(id);
+      }
+      actualizarBotonesSeleccion();
+    };
+
+    window.seleccionarTodosPedidos = function seleccionarTodosPedidos() {
+      pedidosDiaActual.forEach(p => pedidosSeleccionados.add(p.id));
+      actualizarBotonesSeleccion();
+      renderPedidosDia();
+    };
+
+    window.eliminarPedidosSeleccionados = async function eliminarPedidosSeleccionados() {
+      const cantidad = pedidosSeleccionados.size;
+
+      if (!cantidad) {
+        alert("Selecciona al menos un pedido.");
+        return;
+      }
+
+      const ok = confirm(`¿Seguro que quieres eliminar ${cantidad} pedido(s)? Esta acción no se puede deshacer.`);
+      if (!ok) return;
+
+      try {
+        await Promise.all(
+          Array.from(pedidosSeleccionados).map(id => deleteDoc(doc(db, "pedidos", id)))
+        );
+
+        pedidosSeleccionados.clear();
+        modoSeleccion = false;
+        actualizarBotonesSeleccion();
+        await cargarPedidos();
+
+      } catch (error) {
+        console.error(error);
+        alert("No se pudieron eliminar los pedidos seleccionados. Revisa las reglas de Firestore.");
+      }
+    };
+
+    function renderPedidosDia() {
+      const lista = document.getElementById("pedidosLista");
+
+      if (!pedidosDiaActual.length) {
+        lista.innerHTML = `<div class="empty">No hay pedidos para esta fecha.</div>`;
+        return;
+      }
+
+      lista.innerHTML = pedidosDiaActual.map(renderPedido).join("");
+    }
+
+    window.entrar = function entrar() {
+      const clave = document.getElementById("clave").value;
+      const error = document.getElementById("loginError");
+
+      if (clave !== CLAVE_ADMIN) {
+        error.textContent = "Clave incorrecta.";
+        return;
+      }
+
+      sessionStorage.setItem("adminOK", "true");
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("panel").classList.remove("hidden");
+      cargarPedidos();
+    };
+
+    window.salir = function salir() {
+      sessionStorage.removeItem("adminOK");
+      location.reload();
+    };
+
+    window.eliminarPedido = async function eliminarPedido(id) {
+      const ok = confirm("¿Seguro que quieres eliminar este pedido? Esta acción no se puede deshacer.");
+      if (!ok) return;
+
+      try {
+        await deleteDoc(doc(db, "pedidos", id));
+        await cargarPedidos();
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo eliminar. Revisa que las reglas de Firestore permitan delete.");
+      }
+    };
+
+    window.cargarPedidos = async function cargarPedidos() {
+      const fechaSeleccionada = document.getElementById("fecha").value;
+      const lista = document.getElementById("pedidosLista");
+
+      lista.innerHTML = `<div class="empty">Cargando pedidos...</div>`;
+
+      try {
+        const q = query(collection(db, "pedidos"), orderBy("fechaISO", "desc"));
+        const snap = await getDocs(q);
+
+        pedidosGlobales = [];
+        snap.forEach(docSnap => {
+          pedidosGlobales.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        pedidosDiaActual = pedidosGlobales.filter(data => obtenerFechaLocalPedido(data) === fechaSeleccionada);
+
+        actualizarAnalisis(pedidosDiaActual);
+        actualizarBotonesSeleccion();
+        renderPedidosDia();
+
+      } catch (error) {
+        console.error(error);
+        lista.innerHTML = `<div class="empty">No se pudieron cargar los pedidos. Revisa las reglas de Firestore.</div>`;
+      }
+    };
+
+    function fechaHoyChile() {
+      return new Date().toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
+    }
+
+    document.getElementById("fecha").value = fechaHoyChile();
+
+    if (sessionStorage.getItem("adminOK") === "true") {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("panel").classList.remove("hidden");
+      cargarPedidos();
+    }
+  </script>
+</body>
+</html>
