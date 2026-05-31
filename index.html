@@ -182,31 +182,62 @@
       display: none;
     }
 
+    .promo-toggle-card {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .promo-toggle-head {
+      background:
+        linear-gradient(135deg, rgba(17,17,17,.94), rgba(45,45,45,.90)),
+        url('https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?auto=format&fit=crop&w=900&q=80');
+      background-size: cover;
+      background-position: center;
+      padding: 16px;
+      color: white;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .promo-toggle-head h2 {
+      margin: 0;
+      font-size: 25px;
+      text-transform: uppercase;
+    }
+
+    .promo-toggle-head p {
+      margin: 8px 0 0;
+      color: #f1f1f1;
+      font-size: 14px;
+      max-width: 420px;
+    }
+
+    .promo-toggle-body {
+      padding: 14px;
+    }
+
     .show-promos-btn {
       width: 100%;
-      background: linear-gradient(135deg, #d62828, #9d0208);
+      background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
       color: white;
       border: none;
-      border-radius: 24px;
-      padding: 20px 18px;
-      font-size: 20px;
+      border-radius: 18px;
+      padding: 16px 18px;
+      font-size: 18px;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: .8px;
+      letter-spacing: .6px;
       cursor: pointer;
-      margin: 18px 0;
-      box-shadow:
-        0 12px 28px rgba(214,40,40,.38),
-        0 0 24px rgba(214,40,40,.20);
+      margin: 0;
+      box-shadow: 0 8px 18px rgba(214,40,40,.25);
       transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
-      animation: pulsePromo 1.8s infinite;
     }
 
     .show-promos-btn:hover {
       transform: translateY(-2px);
-      box-shadow:
-        0 16px 34px rgba(214,40,40,.48),
-        0 0 32px rgba(214,40,40,.28);
+      box-shadow: 0 12px 24px rgba(214,40,40,.34);
     }
 
     .show-promos-btn:active {
@@ -214,9 +245,9 @@
     }
 
     @keyframes pulsePromo {
-      0% { box-shadow: 0 12px 28px rgba(214,40,40,.34), 0 0 0 rgba(214,40,40,0); }
-      50% { box-shadow: 0 12px 28px rgba(214,40,40,.42), 0 0 24px rgba(214,40,40,.24); }
-      100% { box-shadow: 0 12px 28px rgba(214,40,40,.34), 0 0 0 rgba(214,40,40,0); }
+      0% { box-shadow: 0 8px 18px rgba(214,40,40,.22); }
+      50% { box-shadow: 0 12px 26px rgba(214,40,40,.34); }
+      100% { box-shadow: 0 8px 18px rgba(214,40,40,.22); }
     }
 
     .promo-grid {
@@ -286,12 +317,20 @@
       font-size: 14px;
     }
 
-    .choose-btn, .add-btn {
+    .choose-btn {
       width: 100%;
       background: linear-gradient(135deg, var(--rojo), var(--rojo-oscuro));
       color: white;
       margin-top: 14px;
       box-shadow: 0 8px 18px rgba(214,40,40,.25);
+    }
+
+    .add-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #168f47, #0f6f36);
+      color: white;
+      margin-top: 14px;
+      box-shadow: 0 8px 18px rgba(15,111,54,.25);
     }
 
     .config-card {
@@ -665,6 +704,19 @@
       font-weight: 900;
     }
 
+
+    .hora-preview {
+      margin-top: 8px;
+      background: #fff1f1;
+      color: var(--rojo);
+      border: 1px solid rgba(214,40,40,.18);
+      border-radius: 12px;
+      padding: 9px;
+      font-weight: 900;
+      font-size: 13px;
+      text-align: center;
+    }
+
     .hora-btn.active {
       background: var(--rojo);
       color: white;
@@ -826,7 +878,15 @@
       </div>
     </section>
 
-    <button id="togglePromosBtn" class="show-promos-btn" onclick="togglePromos()">🔥 Ver promociones 🔥</button>
+    <section class="card promo-toggle-card">
+      <div class="promo-toggle-head">
+        <h2>Promociones</h2>
+        <p>Revisa nuestros combos y elige tus ingredientes.</p>
+      </div>
+      <div class="promo-toggle-body">
+        <button id="togglePromosBtn" class="show-promos-btn" onclick="togglePromos()">🔥 Ver promociones 🔥</button>
+      </div>
+    </section>
 
     <section id="promoSection" class="promo-section hidden">
       <div class="section-title">
@@ -859,6 +919,8 @@
 
           <div class="hora-selector-title">Minutos</div>
           <div id="horaManualMinutos" class="hora-btn-grid"></div>
+
+          <div id="horaPreview" class="hora-preview">Selecciona hora y minutos</div>
         </div>
 
         <div id="horarioNota" class="horario-note"></div>
@@ -1146,7 +1208,7 @@
             <ul class="included">${promo.rolls.map(i => `<li>${i}</li>`).join("")}</ul>
             ${promo.rolls.map((roll, index) => crearRollHTML(promo.id, index, roll)).join("")}
 
-            <button class="add-btn" onclick="guardarPromo('${promo.id}')">${textoBoton}</button>
+            <button class="add-btn" onclick="guardarPromo('${promo.id}')">🛒 ${textoBoton}</button>
           </div>
         </section>
       `;
@@ -1375,7 +1437,7 @@
         <div class="roll-box">
           <h3>${builderEnvoltura.nombre} - ${formatCLP(builderEnvoltura.precio)}</h3>
           ${crearRollHTML(id, 0, builderEnvoltura.nombre)}
-          <button class="add-btn" onclick="guardarPersonalizado('${id}')">${editandoIndex !== null ? "Guardar cambios" : "Agregar al carrito"}</button>
+          <button class="add-btn" onclick="guardarPersonalizado('${id}')">${editandoIndex !== null ? "🛒 Guardar cambios" : "🛒 Agregar al carrito"}</button>
         </div>
       `;
 
@@ -1749,6 +1811,8 @@ function cerrarConfirmacion() {
           ${m}
         </button>
       `).join("");
+
+      actualizarPreviewHoraManual();
     }
 
     function seleccionarHoraManual(hora) {
@@ -1761,6 +1825,21 @@ function cerrarConfirmacion() {
       minutoManualSeleccionado = minuto;
       generarSelectorHoraManual();
       actualizarHoraManual();
+    }
+
+    function actualizarPreviewHoraManual() {
+      const preview = document.getElementById("horaPreview");
+      if (!preview) return;
+
+      if (horaManualSeleccionada && minutoManualSeleccionado) {
+        preview.textContent = `Horario seleccionado: ${horaManualSeleccionada}:${minutoManualSeleccionado}`;
+      } else if (horaManualSeleccionada) {
+        preview.textContent = `Hora seleccionada: ${horaManualSeleccionada}. Elige minutos.`;
+      } else if (minutoManualSeleccionado) {
+        preview.textContent = `Minutos seleccionados: ${minutoManualSeleccionado}. Elige hora.`;
+      } else {
+        preview.textContent = "Selecciona hora y minutos";
+      }
     }
 
     function toggleHoraManual() {
@@ -1801,6 +1880,8 @@ function cerrarConfirmacion() {
         opcionesHorarioActuales[index].label = "Elegir otra hora";
         opcionesHorarioActuales[index].fechaHoraISO = null;
       }
+
+      actualizarPreviewHoraManual();
     }
 
     function getHorarioSeleccionado() {
